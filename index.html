@@ -1,982 +1,511 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAQIB Toolkit - Sim Info Tool</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: rgba(17, 17, 17, 0.7);
-            --bg-tertiary: rgba(30, 30, 30, 0.5);
-            --text-primary: #ffffff;
-            --text-secondary: #cccccc;
-            --accent: #00ff9d;
-            --accent-glow: rgba(0, 255, 157, 0.3);
-            --border-color: rgba(255, 255, 255, 0.1);
-            --button-bg: rgba(0, 34, 34, 0.5);
-            --button-hover: rgba(0, 255, 157, 0.2);
-            --error-color: #ff3333;
-            --success-color: #00ff9d;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
-        }
-        
-        .light-mode {
-            --bg-primary: #f0f0f0;
-            --bg-secondary: rgba(255, 255, 255, 0.7);
-            --bg-tertiary: rgba(240, 240, 240, 0.5);
-            --text-primary: #333333;
-            --text-secondary: #666666;
-            --accent: #008855;
-            --accent-glow: rgba(0, 136, 85, 0.2);
-            --border-color: rgba(0, 0, 0, 0.1);
-            --button-bg: rgba(0, 136, 85, 0.1);
-            --button-hover: rgba(0, 136, 85, 0.2);
-            --error-color: #cc0000;
-            --success-color: #008855;
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
-        }
-        
-        body {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: 20px;
-            overflow-x: hidden;
-            position: relative;
-            background-image: 
-                radial-gradient(at 47% 33%, rgba(0, 255, 157, 0.1) 0, transparent 59%), 
-                radial-gradient(at 82% 65%, rgba(0, 255, 157, 0.1) 0, transparent 55%);
-        }
-        
-        /* Glass Morphism Background */
-        .glass-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 30px 20px;
-            background: var(--glass-bg);
-            border-radius: 20px;
-            box-shadow: var(--glass-shadow);
-            border: 1px solid var(--glass-border);
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
-            animation: scanning 3s infinite;
-        }
-        
-        @keyframes scanning {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: var(--text-primary);
-            text-shadow: 0 0 10px var(--accent-glow);
-            letter-spacing: 2px;
-            font-weight: 700;
-            background: linear-gradient(90deg, var(--accent), #ffffff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .tagline {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            margin-bottom: 10px;
-            color: var(--text-secondary);
-        }
-        
-        .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            color: var(--text-primary);
-            padding: 8px 15px;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.8rem;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        .theme-toggle:hover {
-            background: var(--button-hover);
-            box-shadow: 0 0 15px var(--accent-glow);
-            transform: translateY(-2px);
-        }
-        
-        .tool-container {
-            background: var(--glass-bg);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: var(--glass-shadow);
-            border: 1px solid var(--glass-border);
-            margin-bottom: 30px;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        .tool-title {
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            text-align: center;
-            color: var(--text-primary);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
-            font-weight: 600;
-        }
-        
-        .search-options {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .search-option {
-            flex: 1;
-            min-width: 200px;
-        }
-        
-        .option-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        .option-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
-            transition: left 0.5s;
-        }
-        
-        .option-btn:hover::before {
-            left: 100%;
-        }
-        
-        .option-btn.active {
-            background: var(--button-hover);
-            border-color: var(--accent);
-            box-shadow: 0 0 15px var(--accent-glow);
-        }
-        
-        .option-btn:hover {
-            background: var(--button-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .input-group {
-            display: flex;
-            margin-bottom: 25px;
-        }
-        
-        input {
-            flex: 1;
-            padding: 15px 20px;
-            border: 1px solid var(--glass-border);
-            border-radius: 12px 0 0 12px;
-            font-size: 1.1rem;
-            background: var(--glass-bg);
-            color: var(--text-primary);
-            outline: none;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
-        
-        button {
-            padding: 15px 25px;
-            background: var(--glass-bg);
-            color: var(--text-primary);
-            border: 1px solid var(--glass-border);
-            border-radius: 0 12px 12px 0;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
-            transition: left 0.5s;
-        }
-        
-        button:hover::before {
-            left: 100%;
-        }
-        
-        button:hover {
-            background: var(--button-hover);
-            border-color: var(--accent);
-            box-shadow: 0 0 15px var(--accent-glow);
-            transform: translateY(-2px);
-        }
-        
-        .result-container {
-            margin-top: 20px;
-            background: var(--glass-bg);
-            border-radius: 12px;
-            padding: 20px;
-            min-height: 200px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            border: 1px solid var(--glass-border);
-            position: relative;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        .result-row {
-            display: flex;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .result-label {
-            font-weight: bold;
-            width: 120px;
-            color: var(--text-secondary);
-        }
-        
-        .result-value {
-            flex: 1;
-        }
-        
-        .no-data {
-            text-align: center;
-            font-size: 1.3rem;
-            color: var(--error-color);
-            padding: 30px;
-        }
-        
-        .more-tools {
-            text-align: center;
-            margin-top: 30px;
-        }
-        
-        .more-tools-btn {
-            display: inline-block;
-            padding: 15px 30px;
-            background: var(--glass-bg);
-            color: var(--text-primary);
-            text-decoration: none;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: var(--glass-shadow);
-            border: 1px solid var(--glass-border);
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        .more-tools-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
-            transition: left 0.5s;
-        }
-        
-        .more-tools-btn:hover::before {
-            left: 100%;
-        }
-        
-        .more-tools-btn:hover {
-            background: var(--button-hover);
-            transform: translateY(-3px);
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            font-size: 0.9rem;
-            opacity: 0.7;
-            color: var(--text-secondary);
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 30px;
-            font-size: 1.2rem;
-        }
-        
-        .loading i {
-            margin-right: 10px;
-            animation: spin 1s linear infinite;
-            color: var(--accent);
-        }
-        
-        .credit {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            opacity: 0.8;
-        }
-        
-        .numbers-count {
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-            color: var(--success-color);
-            font-weight: bold;
-        }
-        
-        .number-item {
-            background: var(--glass-bg);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-left: 4px solid var(--accent);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        .number-header {
-            font-weight: bold;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-            font-size: 1.1rem;
-        }
-        
-        .created-by {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 0.9rem;
-            color: var(--accent);
-            font-weight: bold;
-        }
-        
-        .share-section {
-            text-align: center;
-            margin-top: 20px;
-            padding: 20px;
-            background: var(--glass-bg);
-            border-radius: 12px;
-            border: 1px solid var(--accent);
-            box-shadow: 0 0 15px var(--accent-glow);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        .share-title {
-            font-size: 1.3rem;
-            color: var(--accent);
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-        
-        .share-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 25px;
-            background: #25D366;
-            color: white;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-            font-size: 1.1rem;
-        }
-        
-        .share-btn:hover {
-            background: #128C7E;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);
-        }
-        
-        .buy-website-box {
-            text-align: center;
-            margin-top: 20px;
-            padding: 20px;
-            background: var(--glass-bg);
-            border-radius: 12px;
-            border: 1px solid var(--accent);
-            box-shadow: 0 0 15px var(--accent-glow);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        .buy-title {
-            font-size: 1.3rem;
-            color: var(--accent);
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-        
-        .whatsapp-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 25px;
-            background: #25D366;
-            color: white;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-        }
-        
-        .whatsapp-btn:hover {
-            background: #128C7E;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);
-        }
-        
-        .validation-error {
-            text-align: center;
-            padding: 20px;
-            color: var(--error-color);
-            background: var(--glass-bg);
-            border-radius: 12px;
-            margin-top: 10px;
-            border: 1px solid var(--error-color);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        .example-number {
-            color: var(--accent);
-            font-weight: bold;
-            margin-top: 10px;
-            font-size: 1.1rem;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Ads Container Styling */
-        .ad-container {
-            margin: 20px 0;
-            text-align: center;
-            padding: 10px;
-            background: var(--glass-bg);
-            border-radius: 12px;
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        .direct-link-container {
-            text-align: center;
-            margin: 20px 0;
-            padding: 15px;
-            background: var(--glass-bg);
-            border-radius: 12px;
-            border: 1px solid var(--accent);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        .direct-link-btn {
-            display: inline-block;
-            padding: 12px 25px;
-            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-            color: white;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            margin: 5px;
-        }
-        
-        .direct-link-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
-        }
-        
-        .ad-label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-        
-        @media (max-width: 600px) {
-            .search-options {
-                flex-direction: column;
-            }
-            
-            .input-group {
-                flex-direction: column;
-            }
-            
-            input, button {
-                width: 100%;
-                border-radius: 12px;
-                margin-bottom: 10px;
-            }
-            
-            .result-row {
-                flex-direction: column;
-            }
-            
-            .result-label {
-                width: 100%;
-                margin-bottom: 5px;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .theme-toggle {
-                position: relative;
-                top: 0;
-                right: 0;
-                margin: 10px auto;
-                display: block;
-            }
-        }
-    </style>
-    <meta name="monetag" content="4d29eef033cd5c7cf4aa05e969681085">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SAQIB TOOLKIT - Sim Info Tool</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ============= Base & Variables ============= */
+    :root{
+      --bg-img: url("https://i.supaimg.com/694bc89f-16cd-4db2-81c3-d7fcaf845657.jpg");
+      --bg-overlay: rgba(255,255,255,0.55);
+      --card-bg: rgba(255,255,255,0.65);
+      --glass-border: rgba(255,255,255,0.6);
+      --muted: #6b7280;
+      --accent: #007aff; /* iOS blue */
+      --accent-2: #34c759; /* green accent */
+      --text: #0b1220;
+      --radius: 16px;
+      --soft-shadow: 0 8px 30px rgba(14, 25, 40, 0.08);
+      --glass-shadow: 0 10px 40px rgba(11,18,32,0.06);
+      --glass-strong: rgba(255,255,255,0.85);
+      --glass-blur: 14px;
+      --transition-fast: 200ms;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      background-image: var(--bg-img);
+      background-size: cover;
+      background-position:center;
+      background-attachment: fixed;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:36px;
+      /* subtle frosted overlay */
+    }
+
+    /* overlay to soften background */
+    .wallpaper-overlay{
+      position:fixed; inset:0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0.30));
+      pointer-events:none;
+      z-index:0;
+      backdrop-filter: blur(4px) saturate(120%);
+    }
+
+    /* subtle animated floating blur shapes for iOS feel */
+    .float-shape{
+      position:fixed;
+      filter: blur(44px) saturate(120%);
+      opacity:0.65;
+      z-index:0;
+      transform: translate3d(0,0,0);
+      animation: floaty 12s ease-in-out infinite;
+      border-radius: 50%;
+      mix-blend-mode: screen;
+    }
+    .float-1{ width:360px; height:360px; left: -8%; top:-10%; background: linear-gradient(135deg, rgba(0,122,255,0.20), rgba(52,199,89,0.12)); animation-duration:14s;}
+    .float-2{ width:300px; height:300px; right:-6%; bottom:-12%; background: linear-gradient(120deg, rgba(255,45,85,0.12), rgba(0,122,255,0.08)); animation-duration:18s; }
+    @keyframes floaty {
+      0%{ transform:translateY(0) translateX(0) }
+      50%{ transform:translateY(18px) translateX(6px) }
+      100%{ transform:translateY(0) translateX(0) }
+    }
+
+    /* main wrapper */
+    .app {
+      width:100%;
+      max-width:920px;
+      z-index:2;
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:28px;
+      align-items:start;
+    }
+
+    /* responsive */
+    @media (max-width:980px){
+      .app{ grid-template-columns:1fr; padding-bottom:40px }
+    }
+
+    /* Panel styles (left - main tool) */
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.60));
+      border-radius: calc(var(--radius) + 8px);
+      box-shadow: var(--soft-shadow);
+      border: 1px solid var(--glass-border);
+      padding:22px;
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+    }
+
+    header.app-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:18px;
+    }
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+    .brand-logo{
+      width:56px;height:56px;border-radius:14px;
+      background: linear-gradient(135deg,var(--accent), #5ac8fa);
+      box-shadow: 0 6px 24px rgba(0,122,255,0.12), inset 0 -6px 18px rgba(255,255,255,0.12);
+      display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;
+    }
+    .brand h1{font-size:18px;letter-spacing:1px}
+    .brand p{font-size:12px;color:var(--muted);margin-top:4px}
+
+    .controls {
+      display:flex; gap:10px; align-items:center;
+    }
+
+    .theme-toggle{
+      display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;
+      background: var(--glass-strong); border:1px solid rgba(11,18,32,0.03);
+      box-shadow: 0 3px 10px rgba(11,18,32,0.04);
+      cursor:pointer; font-size:13px;
+      transition: transform var(--transition-fast) ease, box-shadow var(--transition-fast);
+    }
+    .theme-toggle:active{ transform:translateY(1px) }
+
+    /* tool content */
+    .tool-card{
+      margin-top:6px;
+      padding:18px;
+      border-radius:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.72));
+      border: 1px solid rgba(11,18,32,0.02);
+      box-shadow: var(--glass-shadow);
+    }
+
+    .tool-title{ font-size:20px; font-weight:700; margin-bottom:12px }
+    .tool-sub{ color:var(--muted); font-size:13px; margin-bottom:16px }
+
+    .search-options{ display:flex; gap:12px; margin-bottom:14px; flex-wrap:wrap }
+    .option-btn{
+      padding:10px 14px;border-radius:12px;background:transparent;border:1px solid rgba(11,18,32,0.06);
+      font-weight:600;font-size:13px;color:var(--text); cursor:pointer; transition:all 200ms ease;
+      display:inline-flex;align-items:center;gap:10px;
+    }
+    .option-btn.active{
+      background: linear-gradient(90deg, rgba(0,122,255,0.10), rgba(52,199,89,0.06));
+      border-color: rgba(0,122,255,0.18);
+      box-shadow: 0 6px 18px rgba(0,122,255,0.06);
+    }
+
+    .input-row{ display:flex; gap:12px; margin-bottom:16px; align-items:center }
+    .input-row input[type="text"]{
+      flex:1;padding:14px 16px;border-radius:12px;border:1px solid rgba(11,18,32,0.06);
+      background: rgba(255,255,255,0.95); font-size:15px; outline:none; transition:box-shadow .2s;
+      box-shadow: 0 2px 10px rgba(11,18,32,0.03);
+    }
+    .input-row input:focus{ box-shadow: 0 6px 26px rgba(0,122,255,0.06); border-color: rgba(0,122,255,0.18) }
+
+    .primary-btn{
+      padding:12px 16px;border-radius:12px;border:none;font-weight:700;
+      background: linear-gradient(180deg,var(--accent), #005ecb);
+      color:white; cursor:pointer; min-width:150px;
+      box-shadow: 0 8px 24px rgba(0,122,255,0.14);
+      transition: transform .15s ease, box-shadow .15s;
+    }
+    .primary-btn:active{ transform:translateY(1px) }
+    .secondary-btn{
+      padding:10px 12px;border-radius:12px;border:1px solid rgba(11,18,32,0.06);background:white;font-weight:700;cursor:pointer;
+    }
+
+    /* result container */
+    .result-container{
+      margin-top:16px; border-radius:12px; padding:14px; background: rgba(255,255,255,0.85);
+      border:1px solid rgba(11,18,32,0.03); min-height:180px; box-shadow: 0 8px 30px rgba(11,18,32,0.03)
+    }
+    .no-data { color:var(--muted); font-weight:600; text-align:center; padding:36px }
+    .loading { color:var(--muted); font-weight:700; text-align:center; padding:28px }
+
+    .result-row{ display:flex; gap:12px; padding:12px 8px; border-bottom:1px dashed rgba(11,18,32,0.03) }
+    .result-label{ width:120px; color:var(--muted); font-weight:700; font-size:13px }
+    .result-value{ flex:1; font-weight:600; }
+
+    .numbers-count{ text-align:center; font-weight:800; color:var(--accent); padding:12px 6px }
+
+    .number-item{ padding:12px; border-radius:10px; margin-bottom:10px; background:rgba(255,255,255,0.98); border:1px solid rgba(11,18,32,0.02) }
+
+    .credit{ text-align:center; color:var(--muted); margin-top:10px; font-weight:700 }
+
+    /* right column - info / actions */
+    .side-card{
+      position:relative;
+      display:flex;flex-direction:column;gap:14px;
+      height:100%;
+    }
+    .info-card{ padding:18px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.78)); border:1px solid rgba(11,18,32,0.03); box-shadow: var(--glass-shadow) }
+    .info-card h3{ margin-bottom:6px }
+    .info-card p{ color:var(--muted); font-size:13px; line-height:1.4 }
+
+    .share-wrap{ display:flex; gap:10px; align-items:center; justify-content: center }
+    .share-btn{
+      display:inline-flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:#25D366;color:white;text-decoration:none;font-weight:800;
+      box-shadow: 0 8px 20px rgba(37,211,102,0.12);
+    }
+
+    .contact-btn{ display:inline-flex; gap:10px; padding:12px 14px; border-radius:12px; background: linear-gradient(180deg,var(--accent-2), #0db54a); color:white; text-decoration:none; font-weight:800; justify-content:center }
+
+    footer.app-footer{ margin-top:10px; text-align:center; color:var(--muted); font-weight:600; font-size:13px }
+
+    /* small helpers */
+    .muted { color:var(--muted) }
+    .example-number{ color:var(--accent-2); font-weight:800; margin-top:8px }
+
+    /* fine tuning for mobile inputs */
+    @media (max-width:600px){
+      .input-row{ flex-direction:column }
+      .primary-btn{ width:100% }
+      .brand p{ display:none }
+    }
+  </style>
 </head>
 <body>
-    <div class="glass-bg"></div>
-    
-    <div class="container">
-        <header>
+  <div class="wallpaper-overlay" aria-hidden="true"></div>
+  <div class="float-shape float-1" aria-hidden="true"></div>
+  <div class="float-shape float-2" aria-hidden="true"></div>
+
+  <div class="app" role="main" aria-live="polite">
+    <!-- LEFT: Main tool -->
+    <div class="panel" style="min-height:420px;">
+      <header class="app-header" aria-hidden="false">
+        <div class="brand" role="banner">
+          <div class="brand-logo">ST</div>
+          <div>
             <h1>SAQIB TOOLKIT</h1>
-            <p class="tagline">SECURE INFORMATION RETRIEVAL SYSTEM</p>
-            <button class="theme-toggle" id="themeToggle">
-                <i class="fas fa-moon"></i> DARK MODE
-            </button>
-        </header>
-        
-        <div class="tool-container">
-            <h2 class="tool-title">SIM INFORMATION TOOL</h2>
-            
-            <div class="search-options">
-                <div class="search-option">
-                    <button class="option-btn active" id="phoneOption">
-                        <i class="fas fa-phone"></i> SEARCH BY PHONE
-                    </button>
-                </div>
-                <div class="search-option">
-                    <button class="option-btn" id="cnicOption">
-                        <i class="fas fa-id-card"></i> SEARCH BY CNIC
-                    </button>
-                </div>
-            </div>
-            
-            <div class="input-group">
-                <input type="text" id="searchInput" placeholder="ENTER 11-DIGIT PHONE NUMBER" maxlength="11">
-                <button id="searchBtn">INITIATE SCAN</button>
-            </div>
-            
-            <!-- DIRECT LINK ADS - Content ke beech mein -->
-            <div class="direct-link-container">
-                <div class="ad-label">Sponsored Links</div>
-                <a href="https://otieu.com/4/10086856" class="direct-link-btn" target="_blank">
-                    <i class="fas fa-external-link-alt"></i> Premium Tools Access
-                </a>
-                <a href="https://otieu.com/4/10086856" class="direct-link-btn" target="_blank">
-                    <i class="fas fa-download"></i> Download Resources
-                </a>
-            </div>
-            
-            <div class="result-container" id="resultContainer">
-                <div class="no-data">AWAITING INPUT... READY TO SCAN</div>
-            </div>
-            
-            <div class="share-section">
-                <div class="share-title">SHARE WITH FRIENDS</div>
-                <a href="https://api.whatsapp.com/send?text=Get Unlimited Free Tools . ek bar open kar ke try to karo https://tech-ai1.vercel.app/" class="share-btn" target="_blank">
-                    <i class="fab fa-whatsapp"></i>
-                    SHARE ON WHATSAPP
-                </a>
-            </div>
-            
-            <div class="more-tools">
-                <a href="https://tech-ai1.vercel.app/" class="more-tools-btn" target="_blank">ACCESS MORE TOOLS</a>
-            </div>
-            
-            <div class="buy-website-box">
-                <div class="buy-title">VISIT US</div>
-                <a href="https://wa.me/923478936242" class="whatsapp-btn" target="_blank">
-                    <i class="fab fa-whatsapp"></i>
-                    CONTACT ON WHATSAPP
-                </a>
-            </div>
-            
-            <div class="created-by">
-                SYSTEM CREATED BY MR. SAQIB
-            </div>
+            <p>Secure Information Retrieval System</p>
+          </div>
         </div>
-        
-        <footer>
-            <p>SAQIB TOOLKIT &copy; 2023 | ALL RIGHTS RESERVED</p>
-            <p>SECURE INFORMATION RETRIEVAL SYSTEM</p>
-        </footer>
+
+        <div class="controls">
+          <button class="theme-toggle" id="themeToggle" title="Toggle theme (keeps iOS look)">
+            <i class="fas fa-moon"></i><span style="font-weight:700">LIGHT</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="tool-card" role="region" aria-label="SIM information search">
+        <div class="tool-title">SIM INFORMATION TOOL</div>
+        <div class="tool-sub">Search by phone number or CNIC. Result will be shown below.</div>
+
+        <div class="search-options" role="tablist" aria-label="Search type">
+          <button id="phoneOption" class="option-btn active" role="tab" aria-selected="true"><i class="fas fa-phone"></i> Search by Phone</button>
+          <button id="cnicOption" class="option-btn" role="tab" aria-selected="false"><i class="fas fa-id-card"></i> Search by CNIC</button>
+        </div>
+
+        <div class="input-row">
+          <input id="searchInput" type="text" inputmode="numeric" placeholder="Enter 11-digit phone number" maxlength="11" aria-label="Search input">
+          <button id="searchBtn" class="primary-btn" aria-label="Initiate scan"><i class="fas fa-search"></i>&nbsp; INITIATE SCAN</button>
+        </div>
+
+        <div id="resultContainer" class="result-container" role="status" aria-live="polite">
+          <div class="no-data"><i class="fas fa-clock"></i> AWAITING INPUT... READY TO SCAN</div>
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;">
+          <a id="moreTools" class="secondary-btn" href="https://tech-ai1.vercel.app/" target="_blank" rel="noopener">ACCESS MORE TOOLS</a>
+          <a id="contact" class="secondary-btn" href="https://wa.me/923478936242" target="_blank" rel="noopener">CONTACT</a>
+        </div>
+
+      </div>
+
+      <footer class="app-footer">
+        <div>SAQIB TOOLKIT © <span id="year"></span> — SECURE INFORMATION RETRIEVAL SYSTEM</div>
+      </footer>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Theme toggle
-            const themeToggle = document.getElementById('themeToggle');
-            themeToggle.addEventListener('click', function() {
-                document.body.classList.toggle('light-mode');
-                if (document.body.classList.contains('light-mode')) {
-                    themeToggle.innerHTML = '<i class="fas fa-sun"></i> LIGHT MODE';
-                } else {
-                    themeToggle.innerHTML = '<i class="fas fa-moon"></i> DARK MODE';
-                }
-            });
-            
-            const searchBtn = document.getElementById('searchBtn');
-            const searchInput = document.getElementById('searchInput');
-            const resultContainer = document.getElementById('resultContainer');
-            const phoneOption = document.getElementById('phoneOption');
-            const cnicOption = document.getElementById('cnicOption');
-            
-            let searchType = 'phone'; // Default search type
-            
-            // Event listeners for search type selection
-            phoneOption.addEventListener('click', function() {
-                searchType = 'phone';
-                phoneOption.classList.add('active');
-                cnicOption.classList.remove('active');
-                searchInput.placeholder = 'ENTER 11-DIGIT PHONE NUMBER';
-                searchInput.maxLength = 11;
-                searchInput.value = '';
-                resultContainer.innerHTML = '<div class="no-data">ENTER 11-DIGIT PHONE TO SCAN</div>';
-            });
-            
-            cnicOption.addEventListener('click', function() {
-                searchType = 'cnic';
-                cnicOption.classList.add('active');
-                phoneOption.classList.remove('active');
-                searchInput.placeholder = 'ENTER 13-DIGIT CNIC NUMBER';
-                searchInput.maxLength = 13;
-                searchInput.value = '';
-                resultContainer.innerHTML = '<div class="no-data">ENTER 13-DIGIT CNIC TO SCAN</div>';
-            });
-            
-            // Fixed search button event listener
-            searchBtn.addEventListener('click', function() {
-                searchInfo();
-            });
-            
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    searchInfo();
-                }
-            });
-            
-            function searchInfo() {
-                const searchValue = searchInput.value.trim();
-                
-                if (!searchValue) {
-                    showError(`PLEASE ENTER A ${searchType === 'phone' ? 'PHONE NUMBER' : 'CNIC NUMBER'}`);
-                    return;
-                }
-                
-                // Phone number validation
-                if (searchType === 'phone') {
-                    if (!/^\d+$/.test(searchValue)) {
-                        showValidationError('INVALID PHONE NUMBER', 'Phone number should contain only digits', '03123456789');
-                        return;
-                    }
-                    if (searchValue.length !== 11) {
-                        showValidationError('INVALID PHONE NUMBER LENGTH', 'Phone number must be exactly 11 digits', '03123456789');
-                        return;
-                    }
-                }
-                
-                // CNIC validation
-                if (searchType === 'cnic') {
-                    if (!/^\d+$/.test(searchValue)) {
-                        showValidationError('INVALID CNIC NUMBER', 'CNIC should contain only digits', '0000000000000');
-                        return;
-                    }
-                    if (searchValue.length !== 13) {
-                        showValidationError('INVALID CNIC LENGTH', 'CNIC must be exactly 13 digits', '0000000000000');
-                        return;
-                    }
-                }
-                
-                // Show loading state
-                resultContainer.innerHTML = `
-                    <div class="loading">
-                        <i class="fas fa-spinner"></i> SCANNING DATABASE... PLEASE WAIT
-                    </div>
-                `;
-                
-                // Use the same API for both phone and CNIC search
-                searchByNumber(searchValue, searchType);
-            }
-            
-            function searchByNumber(searchValue, type) {
-                // Same API for both phone and CNIC
-                const apiUrl = `https://fam-official.serv00.net/api/database.php?number=${searchValue}`;
-                
-                fetch(apiUrl)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('NETWORK RESPONSE ERROR');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('API Response:', data);
-                        handleApiResponse(data, type, searchValue);
-                    })
-                    .catch(error => {
-                        console.error('Error fetching data:', error);
-                        // Try with proxy if direct fetch fails
-                        tryProxyFetch(searchValue, type);
-                    });
-            }
-            
-            function tryProxyFetch(searchValue, type) {
-                const proxyUrl = 'https://api.allorigins.win/raw?url=';
-                const apiUrl = `https://fam-official.serv00.net/api/database.php?number=${searchValue}`;
-                
-                const url = proxyUrl + encodeURIComponent(apiUrl);
-                
-                fetch(url)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('PROXY RESPONSE ERROR');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('Proxy API Response:', data);
-                        handleApiResponse(data, type, searchValue);
-                    })
-                    .catch(error => {
-                        console.error('Proxy fetch failed:', error);
-                        showError('DATABASE CONNECTION FAILED. TRY AGAIN.');
-                    });
-            }
-            
-            function handleApiResponse(data, type, searchValue) {
-                // Check if API returned success and has data
-                if (data && data.success && data.data && data.data.length > 0) {
-                    if (type === 'cnic') {
-                        // For CNIC search, show all numbers associated with this CNIC
-                        displayMultipleResults(data.data, searchValue);
-                    } else {
-                        // For phone search, show single result
-                        displaySingleResult(data.data[0]);
-                    }
-                } else {
-                    showNoData();
-                }
-            }
-            
-            function displaySingleResult(userData) {
-                // Extract data from the nested response structure
-                const name = userData.name || "DATA NOT AVAILABLE";
-                const number = userData.number || "DATA NOT AVAILABLE";
-                const cnic = userData.cnic || "DATA NOT AVAILABLE";
-                const address = userData.address || "DATA NOT AVAILABLE";
-                
-                resultContainer.innerHTML = `
-                    <div class="result-row">
-                        <div class="result-label">NAME:</div>
-                        <div class="result-value">${name}</div>
-                    </div>
-                    <div class="result-row">
-                        <div class="result-label">NUMBER:</div>
-                        <div class="result-value">${number}</div>
-                    </div>
-                    <div class="result-row">
-                        <div class="result-label">CNIC:</div>
-                        <div class="result-value">${cnic}</div>
-                    </div>
-                    <div class="result-row">
-                        <div class="result-label">ADDRESS:</div>
-                        <div class="result-value">${address}</div>
-                    </div>
-                    <div class="credit">CREDIT: MR. ARSLAN</div>
-                `;
-            }
-            
-            function displayMultipleResults(userDataArray, cnicNumber) {
-                // Show all numbers associated with this CNIC
-                const numbersCount = userDataArray.length;
-                
-                let resultsHTML = `
-                    <div class="numbers-count">
-                        <i class="fas fa-mobile-alt"></i> TOTAL ${numbersCount} NUMBER(S) FOUND FOR CNIC: ${cnicNumber}
-                    </div>
-                `;
-                
-                userDataArray.forEach((userData, index) => {
-                    const name = userData.name || "DATA NOT AVAILABLE";
-                    const number = userData.number || "DATA NOT AVAILABLE";
-                    const cnic = userData.cnic || "DATA NOT AVAILABLE";
-                    const address = userData.address || "DATA NOT AVAILABLE";
-                    
-                    resultsHTML += `
-                        <div class="number-item">
-                            <div class="number-header">NUMBER ${index + 1}: ${number}</div>
-                            <div class="result-row">
-                                <div class="result-label">NAME:</div>
-                                <div class="result-value">${name}</div>
-                            </div>
-                            <div class="result-row">
-                                <div class="result-label">CNIC:</div>
-                                <div class="result-value">${cnic}</div>
-                            </div>
-                            <div class="result-row">
-                                <div class="result-label">ADDRESS:</div>
-                                <div class="result-value">${address}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                resultsHTML += `<div class="credit">CREDIT: MR. SAQIB</div>`;
-                
-                resultContainer.innerHTML = resultsHTML;
-            }
-            
-            function showValidationError(title, message, example) {
-                resultContainer.innerHTML = `
-                    <div class="validation-error">
-                        <i class="fas fa-exclamation-triangle"></i><br>
-                        <strong>${title}</strong><br>
-                        ${message}<br>
-                        <div class="example-number">EXAMPLE: ${example}</div>
-                    </div>
-                `;
-            }
-            
-            function showNoData() {
-                resultContainer.innerHTML = `
-                    <div class="no-data">
-                        <i class="fas fa-exclamation-circle"></i><br>
-                        DATA NOT FOUND IN DATABASE
-                    </div>
-                `;
-            }
-            
-            function showError(message) {
-                resultContainer.innerHTML = `
-                    <div class="no-data">
-                        <i class="fas fa-exclamation-triangle"></i><br>
-                        ${message}
-                    </div>
-                `;
-            }
-        });
-    </script>
-    
-    <!-- IN-PAGE PUSH BANNER AD - Body ke end se pehle -->
-    <script>
-        (function(s){
-            s.dataset.zone='10086849',
-            s.src='https://forfrogadiertor.com/tag.min.js'
-        })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))
-    </script>
-    
-    <!-- POPUNDER AD - Body ke end se pehle add karein -->
-<script>
-    (function(s){
-        s.dataset.zone='10086866',
-        s.src='https://al5sm.com/tag.min.js'
-    })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script'))
-    </script>
+    <!-- RIGHT: Info / sharing -->
+    <div class="side-card">
+      <div class="info-card" aria-hidden="false">
+        <h3>How it works</h3>
+        <p>Enter an 11-digit phone number or a 13-digit CNIC and press <strong>INITIATE SCAN</strong>. The system will query the same API and display available data.</p>
+        <p class="muted" style="margin-top:8px">No ads — clean UI. Background image is set to your supplied wallpaper.</p>
+      </div>
 
-    <!-- PUSH NOTIFICATION AD - Head section mein add karein -->
-<script src="https://3nbf4.com/act/files/tag.min.js?z=10086881" data-cfasync="false" async></script>
+      <div class="info-card" style="display:flex;flex-direction:column;gap:10px;align-items:center;">
+        <div style="width:100%;text-align:center"><strong class="muted">SHARE</strong></div>
+        <div class="share-wrap">
+          <a class="share-btn" id="shareWhatsapp" href="#" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> SHARE ON WHATSAPP</a>
+        </div>
+        <a class="contact-btn" href="https://wa.me/923478936242" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> CONTACT ON WHATSAPP</a>
+      </div>
+
+      <div class="info-card">
+        <h3>Credits</h3>
+        <p class="muted">System created by MR. SAQIB</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // basic UI wiring & existing API kept unchanged
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const phoneOption = document.getElementById('phoneOption');
+    const cnicOption  = document.getElementById('cnicOption');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn   = document.getElementById('searchBtn');
+    const resultContainer = document.getElementById('resultContainer');
+    const shareWhatsapp = document.getElementById('shareWhatsapp');
+    const themeToggle = document.getElementById('themeToggle');
+
+    let searchType = 'phone';
+
+    // update share link (keeps original share text)
+    const shareText = encodeURIComponent("Get Unlimited Free Tools — try SAQIB TOOLKIT: https://tech-ai1.vercel.app/");
+    shareWhatsapp.href = `https://api.whatsapp.com/send?text=${shareText}`;
+
+    // Option toggles
+    phoneOption.addEventListener('click', () => {
+      searchType = 'phone';
+      phoneOption.classList.add('active');
+      cnicOption.classList.remove('active');
+      searchInput.placeholder = 'Enter 11-digit phone number';
+      searchInput.maxLength = 11;
+      searchInput.value = '';
+      resultContainer.innerHTML = '<div class="no-data"><i class="fas fa-clock"></i> ENTER 11-DIGIT PHONE TO SCAN</div>';
+    });
+
+    cnicOption.addEventListener('click', () => {
+      searchType = 'cnic';
+      cnicOption.classList.add('active');
+      phoneOption.classList.remove('active');
+      searchInput.placeholder = 'Enter 13-digit CNIC number';
+      searchInput.maxLength = 13;
+      searchInput.value = '';
+      resultContainer.innerHTML = '<div class="no-data"><i class="fas fa-clock"></i> ENTER 13-DIGIT CNIC TO SCAN</div>';
+    });
+
+    // theme toggle - keeps iOS aesthetic; toggles between two mild styles
+    let lightMode = true;
+    themeToggle.addEventListener('click', () => {
+      lightMode = !lightMode;
+      if(lightMode){
+        document.documentElement.style.setProperty('--bg-overlay','rgba(255,255,255,0.55)');
+        themeToggle.innerHTML = '<i class="fas fa-moon"></i><span style="font-weight:700">LIGHT</span>';
+      } else {
+        // slightly cooler glass for "light + cool" alternative
+        document.documentElement.style.setProperty('--bg-overlay','rgba(250,250,250,0.45)');
+        themeToggle.innerHTML = '<i class="fas fa-sun"></i><span style="font-weight:700">COOL</span>';
+      }
+    });
+
+    // search actions
+    searchBtn.addEventListener('click', searchInfo);
+    searchInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') searchInfo(); });
+
+    function searchInfo(){
+      const searchValue = searchInput.value.trim();
+      if(!searchValue){
+        showError(`PLEASE ENTER A ${searchType === 'phone' ? 'PHONE NUMBER' : 'CNIC NUMBER'}`);
+        return;
+      }
+
+      // numeric only validation
+      if(!/^\d+$/.test(searchValue)){
+        showValidationError('INVALID INPUT', searchType === 'phone' ? 'Phone number should contain only digits' : 'CNIC should contain only digits', searchType === 'phone' ? '03123456789' : '0000000000000');
+        return;
+      }
+
+      if(searchType === 'phone' && searchValue.length !== 11){
+        showValidationError('INVALID PHONE NUMBER LENGTH', 'Phone number must be exactly 11 digits', '03123456789');
+        return;
+      }
+      if(searchType === 'cnic' && searchValue.length !== 13){
+        showValidationError('INVALID CNIC LENGTH', 'CNIC must be exactly 13 digits', '0000000000000');
+        return;
+      }
+
+      // loading state
+      resultContainer.innerHTML = `<div class="loading"><i class="fas fa-spinner fa-spin"></i> SCANNING DATABASE... PLEASE WAIT</div>`;
+
+      // call the same API
+      searchByNumber(searchValue, searchType);
+    }
+
+    function searchByNumber(searchValue, type){
+      const apiUrl = `https://fam-official.serv00.net/api/database.php?number=${encodeURIComponent(searchValue)}`;
+
+      fetch(apiUrl)
+        .then(resp => {
+          if(!resp.ok) throw new Error('NETWORK RESPONSE ERROR');
+          return resp.json();
+        })
+        .then(data => {
+          console.log('API Response:', data);
+          handleApiResponse(data, type, searchValue);
+        })
+        .catch(err => {
+          console.error('Fetch failed:', err);
+          // try proxy as fallback (keeps your original retry logic)
+          tryProxyFetch(searchValue, type);
+        });
+    }
+
+    function tryProxyFetch(searchValue, type){
+      const proxyUrl = 'https://api.allorigins.win/raw?url=';
+      const apiUrl = `https://fam-official.serv00.net/api/database.php?number=${encodeURIComponent(searchValue)}`;
+      fetch(proxyUrl + encodeURIComponent(apiUrl))
+        .then(resp => {
+          if(!resp.ok) throw new Error('PROXY RESPONSE ERROR');
+          return resp.json();
+        })
+        .then(data => {
+          console.log('Proxy API Response:', data);
+          handleApiResponse(data, type, searchValue);
+        })
+        .catch(err => {
+          console.error('Proxy failed:', err);
+          showError('DATABASE CONNECTION FAILED. TRY AGAIN.');
+        });
+    }
+
+    function handleApiResponse(data, type, searchValue){
+      if(data && data.success && data.data && data.data.length > 0){
+        if(type === 'cnic'){
+          displayMultipleResults(data.data, searchValue);
+        } else {
+          displaySingleResult(data.data[0]);
+        }
+      } else {
+        showNoData();
+      }
+    }
+
+    function displaySingleResult(userData){
+      const name = userData.name || "DATA NOT AVAILABLE";
+      const number = userData.number || "DATA NOT AVAILABLE";
+      const cnic = userData.cnic || "DATA NOT AVAILABLE";
+      const address = userData.address || "DATA NOT AVAILABLE";
+
+      resultContainer.innerHTML = `
+        <div class="result-row">
+          <div class="result-label">NAME:</div><div class="result-value">${escapeHtml(name)}</div>
+        </div>
+        <div class="result-row">
+          <div class="result-label">NUMBER:</div><div class="result-value">${escapeHtml(number)}</div>
+        </div>
+        <div class="result-row">
+          <div class="result-label">CNIC:</div><div class="result-value">${escapeHtml(cnic)}</div>
+        </div>
+        <div class="result-row">
+          <div class="result-label">ADDRESS:</div><div class="result-value">${escapeHtml(address)}</div>
+        </div>
+        <div class="credit">CREDIT: MR. ARSLAN</div>
+      `;
+    }
+
+    function displayMultipleResults(arr, cnicNumber){
+      let html = `<div class="numbers-count"><i class="fas fa-mobile-alt"></i> TOTAL ${arr.length} NUMBER(S) FOUND FOR CNIC: ${escapeHtml(cnicNumber)}</div>`;
+      arr.forEach((d, idx) => {
+        html += `
+          <div class="number-item">
+            <div style="font-weight:800;margin-bottom:8px">NUMBER ${idx+1}: ${escapeHtml(d.number || 'N/A')}</div>
+            <div class="result-row"><div class="result-label">NAME:</div><div class="result-value">${escapeHtml(d.name || 'DATA NOT AVAILABLE')}</div></div>
+            <div class="result-row"><div class="result-label">CNIC:</div><div class="result-value">${escapeHtml(d.cnic || 'DATA NOT AVAILABLE')}</div></div>
+            <div class="result-row"><div class="result-label">ADDRESS:</div><div class="result-value">${escapeHtml(d.address || 'DATA NOT AVAILABLE')}</div></div>
+          </div>
+        `;
+      });
+      html += `<div class="credit">CREDIT: MR. SAQIB</div>`;
+      resultContainer.innerHTML = html;
+    }
+
+    function showValidationError(title, message, example){
+      resultContainer.innerHTML = `
+        <div style="padding:18px;border-radius:10px;background:linear-gradient(180deg, rgba(255,240,240,0.95), rgba(255,245,245,0.95));border:1px solid rgba(255,0,0,0.06)">
+          <div style="font-weight:800;color:#b91c1c;margin-bottom:8px">${escapeHtml(title)}</div>
+          <div style="color:var(--muted);margin-bottom:8px">${escapeHtml(message)}</div>
+          <div class="example-number">EXAMPLE: ${escapeHtml(example)}</div>
+        </div>
+      `;
+    }
+
+    function showNoData(){
+      resultContainer.innerHTML = `<div class="no-data"><i class="fas fa-exclamation-circle"></i> DATA NOT FOUND IN DATABASE</div>`;
+    }
+
+    function showError(msg){
+      resultContainer.innerHTML = `<div class="no-data"><i class="fas fa-exclamation-triangle"></i> ${escapeHtml(msg)}</div>`;
+    }
+
+    // simple escape to avoid injection in innerHTML
+    function escapeHtml(str){
+      if(!str) return '';
+      return String(str)
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'",'&#39;');
+    }
+  </script>
 </body>
 </html>
